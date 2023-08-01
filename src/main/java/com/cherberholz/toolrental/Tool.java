@@ -14,56 +14,99 @@ package com.cherberholz.toolrental;
 // the tool attributes and makes it easier to update and troubleshoot.
 
 public class Tool {
-    private String code;
-    private String type;
-    private String brand;
-    private ToolFees toolFees;
+    // using enum due to low amount of tool codes provided.
+    // *** If this gets significantly larger we will need to consider storing within a database
 
-    // TODO no reason for outside classes to set values in Tool currently, look into changing getter/setter situation
-    public Tool(String code) {
-        this.setCode(code);
+    private enum ToolCode {
+        CHNS,
+        LADW,
+        JAKD,
+        JAKR
     }
 
-    public String getCode() { return code; }
+    private final ToolCode toolCode;
+    private String type;
+    private String brand;
+    private final ToolFees toolFees;
 
-    public void setCode(String code) { this.code = code; }
+    public Tool(String code) {
+        this.toolCode = ToolCode.valueOf(code); // if string does not match enum value then exception is thrown
+        this.setTypeAndBrand();
+        this.toolFees = new ToolFees(this.type);
+    }
+
+    public ToolCode getToolCode() { return toolCode; }
 
     public String getType() { return type; }
 
-    public void setType(String type) { this.type = type; }
+    /**
+     * setTypeAndBrand sets the type and brand of the tool based off the tool code provided as input
+     *
+     */
+    public void setTypeAndBrand() {
+        switch (this.toolCode) {
+            case CHNS -> {
+                this.type = "Chainsaw";
+                this.brand = "Stihl";
+            }
+            case LADW -> {
+                this.type = "Ladder";
+                this.brand = "Werner";
+            }
+            case JAKD -> {
+                this.type = "Jackhammer";
+                this.brand = "DeWalt";
+            }
+            case JAKR -> {
+                this.type = "Jackhammer";
+                this.brand = "Ridgid";
+            }
+        }
+    }
 
     public String getBrand() { return brand; }
 
-    public void setBrand(String brand) { this.brand = brand; }
-
     public ToolFees getToolFees() { return toolFees; }
 
-    public void setToolFees(ToolFees toolFees) { this.toolFees = toolFees; }
-
     public static class ToolFees {
-        private float dailyCharges;
-        private boolean weekdayCharge;
+        private double dailyCharge;
         private boolean weekendCharge;
         private boolean holidayCharge;
 
         public ToolFees(String type) {
-
+            this.setTotalFeeValues(type);
         }
 
-        public float getDailyCharges() { return dailyCharges; }
+        /**
+         * setTotalFeeValues takes the type of tool and specifies dailyCharge, weekendCharge, and holidayCharge values
+         *
+         * @param type   input stating the type of tool.
+         *
+         */
+        private void setTotalFeeValues(String type) {
+            switch (type) {
+                case "Ladder" -> {
+                    this.dailyCharge = 1.99;
+                    this.weekendCharge = true;
+                    this.holidayCharge = false;
+                }
+                case "Chainsaw" -> {
+                    this.dailyCharge = 1.49;
+                    this.weekendCharge = false;
+                    this.holidayCharge = true;
+                }
+                case "Jackhammer" -> {
+                    this.dailyCharge = 2.99;
+                    this.weekendCharge = false;
+                    this.holidayCharge = false;
+                }
+            }
+        }
 
-        public void setDailyCharges(float dailyCharges) { this.dailyCharges = dailyCharges; }
-
-        public boolean isWeekdayCharge() { return weekdayCharge; }
-
-        public void setWeekdayCharge(boolean weekdayCharge) { this.weekdayCharge = weekdayCharge; }
+        public double getDailyCharge() { return dailyCharge; }
 
         public boolean isWeekendCharge() { return weekendCharge; }
 
-        public void setWeekendCharge(boolean weekendCharge) { this.weekendCharge = weekendCharge; }
-
         public  boolean isHolidayCharge() { return holidayCharge; }
-
-        public void setHolidayCharge(boolean holidayCharge) { this.holidayCharge = holidayCharge; }
     }
 }
